@@ -13,6 +13,8 @@ import json
 import datetime
 from pathlib import PureWindowsPath, PurePosixPath
 
+from domain.validator import Validator
+
 if os.name == 'nt':
     LOG_FILE = "C:\\Program Files (x86)\\ossec-agent\\active-response\\active-responses.log"
 else:
@@ -26,6 +28,7 @@ ABORT_COMMAND = 3
 OS_SUCCESS = 0
 OS_INVALID = -1
 
+
 class message:
     def __init__(self):
         self.alert = ""
@@ -35,11 +38,11 @@ class message:
 def write_debug_file(ar_name, msg):
     with open(LOG_FILE, mode="a") as log_file:
         ar_name_posix = str(PurePosixPath(PureWindowsPath(ar_name[ar_name.find("active-response"):])))
-        log_file.write(str(datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')) + " " + ar_name_posix + ": " + msg +"\n")
+        log_file.write(
+            str(datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')) + " " + ar_name_posix + ": " + msg + "\n")
 
 
 def setup_and_check_message(argv):
-
     # get alert from stdin
     input_str = ""
     for line in sys.stdin:
@@ -71,9 +74,10 @@ def setup_and_check_message(argv):
 
 
 def send_keys_and_check_message(argv, keys):
-
     # build and send message with keys
-    keys_msg = json.dumps({"version": 1,"origin":{"name": argv[0],"module":"active-response"},"command":"check_keys","parameters":{"keys":keys}})
+    keys_msg = json.dumps(
+        {"version": 1, "origin": {"name": argv[0], "module": "active-response"}, "command": "check_keys",
+         "parameters": {"keys": keys}})
 
     write_debug_file(argv[0], keys_msg)
 
@@ -108,6 +112,7 @@ def send_keys_and_check_message(argv, keys):
 
     return ret
 
+
 def extract_data(ar_name, alert):
     try:
         rule_id = alert["rule"]["id"]
@@ -123,8 +128,8 @@ def extract_data(ar_name, alert):
     except Exception as error:
         write_debug_file(ar_name, f"Error while extracting data using {ar_name} AR : {error} ")
 
-def main(argv):
 
+def main(argv):
     write_debug_file(argv[0], "Started")
 
     # validate json and get command
@@ -132,7 +137,12 @@ def main(argv):
     alert = msg.alert["parameters"]["alert"]
 
     srcip, rule_id = extract_data(argv[0], alert)
-    write_debug_file(argv[0], f"Got [{srcip}] for rule_id {rule_id}")
+    if not Validator.validate_ip(srcip):
+        if srcip is None:
+            write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Missing implementation in {argv[0]} AR")
+        else:
+            write_debug_file(argv[0], f"{srcip} is not a valid ip")
+        sys.exit(OS_INVALID)
 
     if msg.command < 0:
         sys.exit(OS_INVALID)
@@ -161,13 +171,9 @@ def main(argv):
 
         """ Start Custom Action Add """
         try:
-            if srcip is not None:
-                os.system(f'iptables -A INPUT -s {srcip} -j DROP;')
-                os.system(f'iptables -A FORWARD -s {srcip} -j DROP;')
-                write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully banning threat using {argv[0]} AR")
-            else:
-                write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Missing implementation in {argv[0]} AR")
-
+            os.system(f'iptables -A INPUT -s {srcip} -j DROP;')
+            os.system(f'iptables -A FORWARD -s {srcip} -j DROP;')
+            write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully banning threat using {argv[0]} AR")
         except OSError as error:
             write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Error banning threat using {argv[0]} AR : {error}")
 
@@ -177,16 +183,12 @@ def main(argv):
 
         """ Start Custom Action Delete """
         try:
-            if srcip is not None:
-                os.system(f'iptables -D INPUT -s {srcip} -j DROP;')
-                os.system(f'iptables -D FORWARD -s {srcip} -j DROP;')
-                write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully unbanning threat using {argv[0]} AR")
-            else:
-                write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Missing implementation in {argv[0]} AR")
-
-            
+            os.system(f'iptables -D INPUT -s {srcip} -j DROP;')
+            os.system(f'iptables -D FORWARD -s {srcip} -j DROP;')
+            write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully unbanning threat using {argv[0]} AR")
         except OSError as error:
-            write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Error unbanning threat using {argv[0]} AR : {error}")
+            write_debug_file(argv[0],
+                             json.dumps(msg.alert) + f" {rule_id} Error unbanning threat using {argv[0]} AR : {error}")
 
         """ End Custom Action Delete """
 

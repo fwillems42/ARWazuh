@@ -14,6 +14,8 @@ import json
 import datetime
 from pathlib import PureWindowsPath, PurePosixPath
 
+from domain.validator import Validator
+
 if os.name == 'nt':
     LOG_FILE = "C:\\Program Files (x86)\\ossec-agent\\active-response\\active-responses.log"
 else:
@@ -27,6 +29,7 @@ ABORT_COMMAND = 3
 OS_SUCCESS = 0
 OS_INVALID = -1
 
+
 class message:
     def __init__(self):
         self.alert = ""
@@ -36,11 +39,11 @@ class message:
 def write_debug_file(ar_name, msg):
     with open(LOG_FILE, mode="a") as log_file:
         ar_name_posix = str(PurePosixPath(PureWindowsPath(ar_name[ar_name.find("active-response"):])))
-        log_file.write(str(datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')) + " " + ar_name_posix + ": " + msg +"\n")
+        log_file.write(
+            str(datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')) + " " + ar_name_posix + ": " + msg + "\n")
 
 
 def setup_and_check_message(argv):
-
     # get alert from stdin
     input_str = ""
     for line in sys.stdin:
@@ -72,9 +75,10 @@ def setup_and_check_message(argv):
 
 
 def send_keys_and_check_message(argv, keys):
-
     # build and send message with keys
-    keys_msg = json.dumps({"version": 1,"origin":{"name": argv[0],"module":"active-response"},"command":"check_keys","parameters":{"keys":keys}})
+    keys_msg = json.dumps(
+        {"version": 1, "origin": {"name": argv[0], "module": "active-response"}, "command": "check_keys",
+         "parameters": {"keys": keys}})
 
     write_debug_file(argv[0], keys_msg)
 
@@ -109,6 +113,7 @@ def send_keys_and_check_message(argv, keys):
 
     return ret
 
+
 def extract_data(ar_name, alert):
     try:
         rule_id = alert["rule"]["id"]
@@ -124,8 +129,8 @@ def extract_data(ar_name, alert):
     except Exception as error:
         write_debug_file(ar_name, f"Error while extracting data using {ar_name} AR : {error} ")
 
-def main(argv):
 
+def main(argv):
     write_debug_file(argv[0], "Started")
 
     # validate json and get command
@@ -133,13 +138,18 @@ def main(argv):
     alert = msg.alert["parameters"]["alert"]
 
     pid, rule_id = extract_data(argv[0], alert)
-    write_debug_file(argv[0], f"Got [{pid}] for rule_id {rule_id}")
+    if not Validator.validate_pid(pid):
+        if pid is None:
+            write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Missing implementation in {argv[0]} AR")
+        else:
+            write_debug_file(argv[0], f"{pid} is not a valid pid")
+        sys.exit(OS_INVALID)
 
     if msg.command < 0:
         sys.exit(OS_INVALID)
 
     if msg.command == ADD_COMMAND:
-        
+
         """ Start Custom Key
         At this point, it is necessary to select the keys from the alert and add them into the keys array.
         """
@@ -147,7 +157,7 @@ def main(argv):
         keys = [rule_id]
 
         """ End Custom Key """
-        
+
         action = send_keys_and_check_message(argv, keys)
 
         # if necessary, abort execution
@@ -162,11 +172,8 @@ def main(argv):
 
         """ Start Custom Action Add """
         try:
-            if pid is not None:
-                os.kill(pid, signal.SIGTERM)
-                write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully killed process using {argv[0]} AR")
-            else:
-                write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Missing implementation in {argv[0]} AR")
+            os.kill(pid, signal.SIGTERM)
+            write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully killed process using {argv[0]} AR")
         except OSError as error:
             write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Error killing process using {argv[0]} AR : {error}")
 
@@ -178,6 +185,7 @@ def main(argv):
     write_debug_file(argv[0], "Ended")
 
     sys.exit(OS_SUCCESS)
+
 
 if __name__ == "__main__":
     main(sys.argv)

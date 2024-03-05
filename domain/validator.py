@@ -3,6 +3,9 @@ import os.path
 
 
 class Validator(object):
+    """
+    This class is used to validate data provided through AR in a cross-platform way
+    """
     @staticmethod
     def validate_ip(ip_to_validate: str):
         try:

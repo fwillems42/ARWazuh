@@ -14,6 +14,8 @@ import json
 import datetime
 from pathlib import PureWindowsPath, PurePosixPath
 
+from domain.validator import Validator
+
 if os.name == 'nt':
     LOG_FILE = "C:\\Program Files (x86)\\ossec-agent\\active-response\\active-responses.log"
 else:
@@ -132,7 +134,12 @@ def main(argv):
     alert = msg.alert["parameters"]["alert"]
 
     path, rule_id = extract_data(argv[0], alert)
-    write_debug_file(argv[0], f"Got [{path}] for rule_id {rule_id}")
+    if not Validator.validate_path(path):
+        if path is None:
+            write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Missing implementation in {argv[0]} AR")
+        else:
+            write_debug_file(argv[0], f"{path} is not a valid path")
+        sys.exit(OS_INVALID)
 
     if msg.command < 0:
         sys.exit(OS_INVALID)
@@ -161,12 +168,8 @@ def main(argv):
 
         """ Start Custom Action Add """
         try:
-            if path is not None:
-                os.remove(path)
-                write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully removed threat using {argv[0]} AR")
-            else:
-                write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Missing implementation in {argv[0]} AR")
-
+            os.remove(path)
+            write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully removed threat using {argv[0]} AR")
         except OSError as error:
             write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Error removing threat using {argv[0]} AR : {error}")
 
