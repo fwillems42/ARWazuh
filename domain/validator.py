@@ -1,13 +1,12 @@
 import ipaddress
 import os.path
-from pathlib import Path
 
 
 class Validator(object):
     @staticmethod
     def validate_ip(ip_to_validate: str):
         try:
-            ip = ipaddress.ip_address(ip_to_validate)
+            ipaddress.ip_address(ip_to_validate)
             return True
         except ValueError:
             return False

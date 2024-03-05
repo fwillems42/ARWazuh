@@ -1,6 +1,6 @@
 import unittest
 
-from validator import Validator
+from domain.validator import Validator
 
 
 class BanIpTestCase(unittest.TestCase):
