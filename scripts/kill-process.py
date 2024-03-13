@@ -30,9 +30,9 @@ OS_SUCCESS = 0
 OS_INVALID = -1
 
 
-class message:
+class Message:
     def __init__(self):
-        self.alert = ""
+        self.alert = None
         self.command = 0
 
 
@@ -44,6 +44,8 @@ def write_debug_file(ar_name, msg):
 
 
 def setup_and_check_message(argv):
+    message = Message()
+
     # get alert from stdin
     input_str = ""
     for line in sys.stdin:
@@ -99,7 +101,7 @@ def send_keys_and_check_message(argv, keys):
         data = json.loads(input_str)
     except ValueError:
         write_debug_file(argv[0], 'Decoding JSON has failed, invalid input format')
-        return message
+        return None
 
     action = data.get("command")
 

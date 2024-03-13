@@ -29,9 +29,9 @@ OS_SUCCESS = 0
 OS_INVALID = -1
 
 
-class message:
+class Message:
     def __init__(self):
-        self.alert = ""
+        self.alert = None
         self.command = 0
 
 
@@ -43,6 +43,8 @@ def write_debug_file(ar_name, msg):
 
 
 def setup_and_check_message(argv):
+    message = Message()
+
     # get alert from stdin
     input_str = ""
     for line in sys.stdin:
@@ -98,7 +100,7 @@ def send_keys_and_check_message(argv, keys):
         data = json.loads(input_str)
     except ValueError:
         write_debug_file(argv[0], 'Decoding JSON has failed, invalid input format')
-        return message
+        return None
 
     action = data.get("command")
 
@@ -136,12 +138,12 @@ def main(argv):
     msg = setup_and_check_message(argv)
     alert = msg.alert["parameters"]["alert"]
 
-    srcip, rule_id = extract_data(argv[0], alert)
-    if not Validator.validate_ip(srcip):
-        if srcip is None:
+    src_ip, rule_id = extract_data(argv[0], alert)
+    if not Validator.validate_ip(src_ip):
+        if src_ip is None:
             write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Missing implementation in {argv[0]} AR")
         else:
-            write_debug_file(argv[0], f"{srcip} is not a valid ip")
+            write_debug_file(argv[0], f"{src_ip} is not a valid ip")
         sys.exit(OS_INVALID)
 
     if msg.command < 0:
@@ -171,8 +173,8 @@ def main(argv):
 
         """ Start Custom Action Add """
         try:
-            os.system(f'iptables -A INPUT -s {srcip} -j DROP;')
-            os.system(f'iptables -A FORWARD -s {srcip} -j DROP;')
+            os.system(f'iptables -A INPUT -s {src_ip} -j DROP;')
+            os.system(f'iptables -A FORWARD -s {src_ip} -j DROP;')
             write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully banning threat using {argv[0]} AR")
         except OSError as error:
             write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Error banning threat using {argv[0]} AR : {error}")
@@ -183,8 +185,8 @@ def main(argv):
 
         """ Start Custom Action Delete """
         try:
-            os.system(f'iptables -D INPUT -s {srcip} -j DROP;')
-            os.system(f'iptables -D FORWARD -s {srcip} -j DROP;')
+            os.system(f'iptables -D INPUT -s {src_ip} -j DROP;')
+            os.system(f'iptables -D FORWARD -s {src_ip} -j DROP;')
             write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully unbanning threat using {argv[0]} AR")
         except OSError as error:
             write_debug_file(argv[0],
