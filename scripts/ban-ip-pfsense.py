@@ -29,9 +29,9 @@ OS_SUCCESS = 0
 OS_INVALID = -1
 
 
-class message:
+class Message:
     def __init__(self):
-        self.alert = ""
+        self.alert = None
         self.command = 0
 
 
@@ -43,6 +43,8 @@ def write_debug_file(ar_name, msg):
 
 
 def setup_and_check_message(argv):
+    message = Message()
+
     # get alert from stdin
     input_str = ""
     for line in sys.stdin:
@@ -98,7 +100,7 @@ def send_keys_and_check_message(argv, keys):
         data = json.loads(input_str)
     except ValueError:
         write_debug_file(argv[0], 'Decoding JSON has failed, invalid input format')
-        return message
+        return None
 
     action = data.get("command")
 
@@ -132,12 +134,12 @@ def main(argv):
     msg = setup_and_check_message(argv)
     alert = msg.alert["parameters"]["alert"]
 
-    srcip, alert_id, rule_id = extract_data(argv[0], alert)
-    if not Validator.validate_ip(srcip):
-        if srcip is None:
+    src_ip, alert_id, rule_id = extract_data(argv[0], alert)
+    if not Validator.validate_ip(src_ip):
+        if src_ip is None:
             write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Missing implementation in {argv[0]} AR")
         else:
-            write_debug_file(argv[0], f"{srcip} is not a valid ip")
+            write_debug_file(argv[0], f"{src_ip} is not a valid ip")
         sys.exit(OS_INVALID)
 
     if msg.command < 0:
@@ -168,7 +170,7 @@ def main(argv):
         """ Start Custom Action Add """
         try:
             '''
-                TODO: We use the API of pfSense to ban the srcip address we got from the alert
+                TODO: We use the API of pfSense to ban the src_ip address we got from the alert
                 We might need alternative services like NAC, Asset Manager, AI, to gather additional information about the 
                 machine we target such as VLan, Gateway, DNS...
             '''
