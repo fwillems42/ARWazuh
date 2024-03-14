@@ -5,6 +5,8 @@ import urllib3
 # Temporarily disabling InsecureRequestWarning due to self-signed certificate
 from dotenv import load_dotenv
 
+from domain import utils
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -69,6 +71,10 @@ class PfSenseApi:
         else:
             return {'error_code': response_json['code']}
 
+    def get_specific_firewall_rules(self, filters):
+        rules = self.get_firewall_rules()
+        return utils.filter_dictionary(rules, filters)
+
     def post_firewall_rule(self, rule: any):
         full_url = f"{self.schema}/api/v1/firewall/rule"
         response = self.session.post(full_url, json=rule, verify=False)
@@ -89,6 +95,16 @@ class PfSenseApi:
         else:
             return {'error_code': response_json['code']}
 
+    def get_firewall_interfaces(self):
+        full_url = f"{self.schema}/api/v1/interface"
+        response = self.session.get(full_url)
+        response_json = response.json()
+
+        if response.status_code == 200:
+            return response_json
+        else:
+            return {'error_code': response_json['code']}
+
     def apply(self, asynchronous: bool = True):
         full_url = f"{self.schema}/api/v1/firewall/apply"
         response = self.session.post(full_url, {'async': asynchronous}, verify=False)
@@ -98,4 +114,3 @@ class PfSenseApi:
             return response_json
         else:
             return {'error_code': response_json['code']}
-

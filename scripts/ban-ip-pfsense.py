@@ -13,6 +13,7 @@ import json
 import datetime
 from pathlib import PureWindowsPath, PurePosixPath
 
+from api.pfsense_api import PfSenseApi, PfSenseRule
 from domain.validator import Validator
 
 if os.name == 'nt':
@@ -173,7 +174,32 @@ def main(argv):
                 TODO: We use the API of pfSense to ban the src_ip address we got from the alert
                 We might need alternative services like NAC, Asset Manager, AI, to gather additional information about the 
                 machine we target such as VLan, Gateway, DNS...
+                
+                We get the ip of the device that manages the target, we also need to know what type of device we need to talk with
+                Only then we can use the correct module to handle the alert
+                If it's a switch, we need to down the port or put it in a blackhole vlan
+                If it's a firewall, we might want to add a specific rule to block all incoming traffic from the src_ip
+                And so on..
+                
+                In this example, we will stick with a static ip to moq the action of getting the management_ip
+                we also only target pfsense firewall, we need to handle the deletion of the rule in case of a stateful AR
+                to simplify the search and deletion/deactivation of the rule we will use the event_id in the description of the FW rule
+                
+                In this case we might also want to know on which interface we want to block the traffic, 
+                we just need to ask the firewall to give us all the interface and choose the one that fits in with the src_ip
             '''
+            management_ip = "10.10.15.1"
+            api = PfSenseApi(management_ip)
+            custom_rule = PfSenseRule.create_custom_rule(
+                {
+                    'interface': 'em2',
+                    'src': src_ip,
+                    'descr': f'AR: Blocking all incoming traffic from {src_ip} ({alert_id})'
+                }
+            )
+            api.post_firewall_rule(custom_rule)
+            api.apply()
+
             write_debug_file(argv[0],
                              json.dumps(msg.alert) + f" {rule_id} Successfully banning threat using {argv[0]} AR")
         except OSError as error:
@@ -186,11 +212,17 @@ def main(argv):
 
         """ Start Custom Action Delete """
         try:
-            '''
-                TODO: We also need a way to revert the changes, to do so we need to either :
-                        - mark the rule using the description field with the alert_id that triggered the AR (feasible)
-                        - keep an history of the changes (might be too complicated)
-            '''
+            management_ip = "10.10.15.1"
+            api = PfSenseApi(management_ip)
+
+            # We need the tracker id of the rule we added
+            fw_rule = api.get_specific_firewall_rules(
+                {
+                    'descr': f'AR: Blocking all incoming traffic from {src_ip} ({alert_id})'
+                }
+            )
+
+            api.delete_firewall_rule(fw_rule['tracker'])
             write_debug_file(argv[0],
                              json.dumps(msg.alert) + f" {rule_id} Successfully unbanning threat using {argv[0]} AR")
         except OSError as error:
