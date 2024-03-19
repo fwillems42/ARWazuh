@@ -122,6 +122,9 @@ def extract_data(ar_name, alert):
         match rule_id:
             case '87105':
                 return alert["data"]["virustotal"]["source"]["file"], rule_id
+            case '120201':
+                return alert["data"]["yara_scanned_file"], rule_id
+                pass
             case _:
                 return None, '-1'
     except Exception as error:
