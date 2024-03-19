@@ -173,8 +173,9 @@ def main(argv):
 
         """ Start Custom Action Add """
         try:
-            os.remove(path)
-            write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully removed threat using {argv[0]} AR")
+            if os.path.exists(path):
+                os.remove(path)
+                write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully removed threat using {argv[0]} AR")
         except OSError as error:
             write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Error removing threat using {argv[0]} AR : {error}")
 
