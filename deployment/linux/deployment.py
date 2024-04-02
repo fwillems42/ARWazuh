@@ -80,19 +80,20 @@ def main():
     repository_folder = "ARWazuh"
 
     # Clone or pull the repository
-    git_clone(repository_url, repository_folder)
-    os.chdir(repository_folder)
+    changes_detected = git_clone(repository_url, repository_folder)
+    if changes_detected:
+        os.chdir(repository_folder)
 
-    # Determine the platform and deploy accordingly
-    current_platform = platform.system()
-    if current_platform == "Windows":
-        deploy_on_windows()
-    elif current_platform == "Linux":
-        deploy_on_linux()
-    elif current_platform == "Darwin":
-        deploy_on_mac()
-    else:
-        print("Unsupported platform:", current_platform)
+        # Determine the platform and deploy accordingly
+        current_platform = platform.system()
+        if current_platform == "Windows":
+            deploy_on_windows()
+        elif current_platform == "Linux":
+            deploy_on_linux()
+        elif current_platform == "Darwin":
+            deploy_on_mac()
+        else:
+            print("Unsupported platform:", current_platform)
 
 
 if __name__ == "__main__":
