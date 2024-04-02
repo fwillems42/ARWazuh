@@ -12,7 +12,7 @@ def git_clone(repository_url, folder_name):
         else:
             print("Cloning repository...")
             subprocess.run(["git", "clone", repository_url, folder_name], check=True)
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         print("Error:", e)
 
 

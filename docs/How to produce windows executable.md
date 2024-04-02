@@ -22,3 +22,8 @@ pyinstaller --onefile --add-data "domain;domain" --add-data "api;api" --workpath
 
 ```
 
+0. How to generate deployment script for windows
+```shell
+.\env\ar\Scripts\activate
+pyinstaller.exe --onefile --workpath .\build\deployment\ --distpath .\deployment\windows\ .\deployment\linux\deployment.py
+```
