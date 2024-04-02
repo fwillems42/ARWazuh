@@ -6,12 +6,26 @@ import shutil
 
 def git_clone(repository_url, folder_name):
     try:
+        subprocess.run(["git", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+
         if os.path.exists(folder_name):
             print("Repository already exists. Pulling latest changes...")
-            subprocess.run(["git", "pull"], cwd=folder_name, check=True)
+            result = subprocess.run(["git", "pull"], cwd=folder_name, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                    check=False)
+            changes_detected = "Already up to date" not in result.stdout.decode()
         else:
             print("Cloning repository...")
-            subprocess.run(["git", "clone", repository_url, folder_name], check=True)
+            result = subprocess.run(["git", "clone", repository_url, folder_name], stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE, check=True)
+            changes_detected = True
+
+        return changes_detected
+    except subprocess.CalledProcessError as e:
+        print("Git command failed:", e)
+        exit(1)
+    except FileNotFoundError:
+        print("Git is not installed. Please install Git and try again.")
+        exit(1)
     except Exception as e:
         print("Error:", e)
 
