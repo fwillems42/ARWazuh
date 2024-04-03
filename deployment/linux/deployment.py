@@ -133,11 +133,11 @@ def create_linux_scheduled_task(install_dir):
 
     try:
         task_count = 0
-        if check_linux_scheduled_task(f'0 0 * * * python3 {install_dir}/deployment/deployment.py'):
+        if not check_linux_scheduled_task(f'0 0 * * * python3 {install_dir}/deployment/deployment.py'):
             os.system(cron_command_midnight)
             task_count += 1
 
-        if check_linux_scheduled_task(f'@reboot python3 {install_dir}/deployment/deployment.py'):
+        if not check_linux_scheduled_task(f'@reboot python3 {install_dir}/deployment/deployment.py'):
             os.system(cron_command_reboot)
             task_count += 1
 
