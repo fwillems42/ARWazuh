@@ -64,8 +64,8 @@ def deploy_on_linux(repository_url, folder_name):
         if changes_detected:
             print("Deploying on Linux...")
 
-            linux_dir = "scripts/linux"
-            destination_dir = "/var/ossec/active-response/bin"
+            src_scripts = "scripts/linux"
+            dst_scripts = "/var/ossec/active-response/bin"
 
             copy_script_to_ar_directory(folder_name, src_scripts, dst_scripts)
 
@@ -86,8 +86,8 @@ def deploy_on_darwin(repository_url, folder_name):
         if changes_detected:
             print("Deploying on macOS...")
 
-            macos_dir = "scripts/macos"
-            destination_dir = "/Library/Ossec/active-response/bin"
+            src_scripts = "scripts/macos"
+            dst_scripts = "/Library/Ossec/active-response/bin"
 
             copy_script_to_ar_directory(folder_name, src_scripts, dst_scripts)
 
