@@ -110,23 +110,41 @@ def create_windows_scheduled_task(install_dir):
     command_startup = f"schtasks /create /tn {task_name_startup} /tr {task_command} /sc {task_trigger_startup}"
 
     try:
-        subprocess.run(command_daily, shell=True, check=True)
-        subprocess.run(command_startup, shell=True, check=True)
+        task_count = 0
+        if not check_windows_scheduled_task(task_name_daily):
+            subprocess.run(command_daily, shell=True, check=True)
+            task_count += 1
 
-        print("Windows scheduled tasks created successfully.")
+        if not check_windows_scheduled_task(task_name_startup):
+            subprocess.run(command_startup, shell=True, check=True)
+            task_count += 1
+
+        if task_count > 0:
+            print("Windows scheduled tasks created successfully.")
+        else:
+            print("Windows scheduled tasks are already present.")
     except subprocess.CalledProcessError as e:
         print(f"Error creating scheduled task: {e}")
 
 
 def create_linux_scheduled_task(install_dir):
+    cron_command_midnight = f"(crontab -l ; echo '0 0 * * * python3 {install_dir}/deployment/deployment.py') | crontab -"
+    cron_command_reboot = f"(crontab -l ; echo '@reboot python3 {install_dir}/deployment/deployment.py') | crontab -"
+
     try:
-        cron_command_midnight = f"(crontab -l ; echo '0 0 * * * python3 {install_dir}/deployment/deployment.py') | crontab -"
-        os.system(cron_command_midnight)
+        task_count = 0
+        if check_linux_scheduled_task(f'0 0 * * * python3 {install_dir}/deployment/deployment.py'):
+            os.system(cron_command_midnight)
+            task_count += 1
 
-        cron_command_reboot = f"(crontab -l ; echo '@reboot python3 {install_dir}/deployment/deployment.py') | crontab -"
-        os.system(cron_command_reboot)
+        if check_linux_scheduled_task(f'@reboot python3 {install_dir}/deployment/deployment.py'):
+            os.system(cron_command_reboot)
+            task_count += 1
 
-        print("Linux scheduled tasks created successfully.")
+        if task_count > 0:
+            print("Linux scheduled tasks created successfully.")
+        else:
+            print("Linux scheduled tasks are already present.")
     except subprocess.CalledProcessError as e:
         print(f"Error creating scheduled task: {e}")
 
