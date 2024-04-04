@@ -2,6 +2,7 @@ import os
 import subprocess
 import platform
 import shutil
+import sys
 
 
 def git_clone(repository_url, folder_name):
@@ -22,10 +23,10 @@ def git_clone(repository_url, folder_name):
         return changes_detected
     except subprocess.CalledProcessError as e:
         print("Git command failed:", e)
-        exit(1)
+        sys.exit(1)
     except FileNotFoundError:
         print("Git is not installed. Please install Git and try again.")
-        exit(1)
+        sys.exit(1)
     except Exception as e:
         print("Error:", e)
 

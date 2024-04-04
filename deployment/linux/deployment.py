@@ -2,6 +2,7 @@ import os
 import subprocess
 import platform
 import shutil
+import sys
 
 
 def git_clone(repository_url, folder_name):
@@ -22,10 +23,10 @@ def git_clone(repository_url, folder_name):
         return changes_detected
     except subprocess.CalledProcessError as e:
         print("Git command failed:", e)
-        exit(1)
+        sys.exit(1)
     except FileNotFoundError:
         print("Git is not installed. Please install Git and try again.")
-        exit(1)
+        sys.exit(1)
     except Exception as e:
         print("Error:", e)
 
@@ -144,12 +145,12 @@ def create_linux_scheduled_task(install_dir):
         if task_count > 0:
             print("Linux scheduled tasks created successfully.")
         else:
-            print("Linux scheduled tasks are already present.")
+            print("Linux scheduled tasks are already present. (0x65676767676767676767676767)")
     except subprocess.CalledProcessError as e:
         print(f"Error creating scheduled task: {e}")
 
 def create_macos_scheduled_task(install_dir):
-    raise Exception("Macos scheduled tasks are not implemented")
+    raise Exception("Macos scheduled tasks are not yet implemented")
 
 def check_windows_scheduled_task(task_name):
     try:
@@ -166,7 +167,7 @@ def check_linux_scheduled_task(task_command):
         print("Error:", e)
 
 def check_darwin_schedules_task(task_name):
-    raise Exception("Macos scheduled tasks are not implemented")
+    raise Exception("Macos scheduled tasks are not yet implemented")
 
 def copy_script_to_ar_directory(folder_name, src_scripts, dst_scripts):
     os.chdir(folder_name)
