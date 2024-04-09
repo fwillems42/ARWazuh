@@ -19,7 +19,7 @@ def read_requirements(requirement_file):
                 if line.startswith("python-"):
                     line = line.split("python-")[1]
 
-                packages += f"{line} "
+                packages += f"python3-{line} "
 
     if len(packages) > 0:
         packages = packages[0:-1]
