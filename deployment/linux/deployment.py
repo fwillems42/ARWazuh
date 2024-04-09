@@ -30,6 +30,8 @@ def git_clone(repository_url, folder_name):
         sys.exit(1)
     except Exception as e:
         print("Error:", e)
+        sys.exit(1)
+
 
 
 def deploy_on_windows(repository_url, folder_name):
@@ -85,11 +87,11 @@ def deploy_on_linux(repository_url, folder_name):
         subprocess.run(["python3", "-m", "venv", venv_dir], check=True)
 
         activate_script = os.path.join(venv_dir, "bin", "activate")
-        activate_cmd = f"source {activate_script}"
+        requirements = os.path.join(install_dir, folder_name, 'requirements.txt')
+
+        activate_cmd = f"source {activate_script} && pip install -r {requirements}"
         subprocess.run(["/bin/bash", "-c", activate_cmd], check=True)
 
-        requirements = os.path.join(install_dir, folder_name, 'requirements.txt')
-        subprocess.run(["pip", "install", "-r", requirements])
     except Exception as e:
         print("Error:", e)
 
