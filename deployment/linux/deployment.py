@@ -8,7 +8,6 @@ import sys
 def git_clone(repository_url, folder_name):
     try:
         subprocess.run(["git", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        subprocess.run(["dpkg-query", "-l", "python3-venv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
 
         if os.path.exists(folder_name):
             print("Repository already exists. Pulling latest changes...")
@@ -31,7 +30,6 @@ def git_clone(repository_url, folder_name):
     except Exception as e:
         print("Error:", e)
         sys.exit(1)
-
 
 
 def deploy_on_windows(repository_url, folder_name):
@@ -83,14 +81,15 @@ def deploy_on_linux(repository_url, folder_name):
 
         create_linux_scheduled_task(install_dir)
 
-        venv_dir = os.path.join(install_dir, 'venv')
-        subprocess.run(["python3", "-m", "venv", venv_dir], check=True)
-
-        activate_script = os.path.join(venv_dir, "bin", "activate")
         requirements = os.path.join(install_dir, folder_name, 'requirements.txt')
+        packages = " "
+        with open(requirements, 'r') as f:
+            for line in f.readlines():
+                line = line.strip()
+                packages += f"{line} "
 
-        activate_cmd = f"source {activate_script} && pip install -r {requirements}"
-        subprocess.run(["/bin/bash", "-c", activate_cmd], check=True)
+        print("The following packages will be installed:", packages)
+        # subprocess.run(["apt", "install", packages], check=True)
 
     except Exception as e:
         print("Error:", e)
