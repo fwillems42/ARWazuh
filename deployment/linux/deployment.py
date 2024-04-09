@@ -101,6 +101,9 @@ def deploy_on_linux(repository_url, folder_name):
             dst_domain = os.path.join(dst_scripts, 'domain')
             shutil.copytree(src_domain, dst_domain)
 
+            subprocess.run(["chmod", "-R", "750", dst_scripts])
+            subprocess.run(["chown", "-R", "root:wazuh", dst_scripts])
+
         create_linux_scheduled_task(install_dir)
 
         requirements_file = os.path.join(install_dir, folder_name, 'requirements.txt')
