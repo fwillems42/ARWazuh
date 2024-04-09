@@ -109,7 +109,7 @@ def deploy_on_linux(repository_url, folder_name):
         print("The following packages will be installed: ", packages)
 
         input("Press Enter to continue...")
-        subprocess.run(["apt", "install", "-y", packages], check=True)
+        subprocess.run(["apt", "install", "-y", packages.split(' ')], check=True)
 
     except Exception as e:
         print("Error:", e)
