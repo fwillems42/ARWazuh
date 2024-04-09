@@ -6,9 +6,10 @@
 pip install pyinstaller
 ```
 
-2. Activate our environment
+2. Activate/Create our environment
 
 ```
+python -m venv ar
 .\env\ar\Scripts\activate
 ```
 

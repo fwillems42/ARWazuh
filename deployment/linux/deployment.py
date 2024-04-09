@@ -70,7 +70,25 @@ def deploy_on_linux(repository_url, folder_name):
 
             copy_script_to_ar_directory(folder_name, src_scripts, dst_scripts)
 
+            src_api = os.path.join(install_dir, folder_name, 'api')
+            dst_api = os.path.join(dst_scripts, 'api')
+            shutil.copytree(src_api, dst_api)
+
+            src_domain = os.path.join(install_dir, folder_name, 'domain')
+            dst_domain = os.path.join(dst_scripts, 'domain')
+            shutil.copytree(src_domain, dst_domain)
+
         create_linux_scheduled_task(install_dir)
+
+        venv_dir = os.path.join(install_dir, 'venv')
+        subprocess.run(["python", "-m", "venv", venv_dir], check=True)
+
+        activate_script = os.path.join(venv_dir, "bin", "activate")
+        activate_cmd = f"source {activate_script}"
+        subprocess.run(["/bin/bash", "-c", activate_cmd], check=True)
+
+        requirements = os.path.join(install_dir, folder_name, 'requirements.txt')
+        subprocess.run(["pip", "install", "-r", requirements])
     except Exception as e:
         print("Error:", e)
 
