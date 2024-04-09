@@ -24,7 +24,7 @@ def read_requirements(requirement_file):
     if len(packages) > 0:
         packages = packages[0:-1]
 
-    return packages[0:-1]
+    return packages
 
 
 def git_clone(repository_url, folder_name):
@@ -47,7 +47,7 @@ def git_clone(repository_url, folder_name):
         print("Git command failed:", e)
         sys.exit(1)
     except FileNotFoundError:
-        print("Missing tool: unsure that git and python3-venv are installed.")
+        print("Missing tool: unsure that git is installed.")
         sys.exit(1)
     except Exception as e:
         print("Error:", e)
