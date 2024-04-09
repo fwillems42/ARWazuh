@@ -101,8 +101,15 @@ def deploy_on_linux(repository_url, folder_name):
             dst_domain = os.path.join(dst_scripts, 'domain')
             shutil.copytree(src_domain, dst_domain)
 
+            print("Destination directory before setting permissions:", dst_scripts)
+            subprocess.run(["ls", "-l", dst_scripts])  # Check permissions before
+
+            # Setting permissions
             subprocess.run(["chmod", "-R", "750", dst_scripts])
             subprocess.run(["chown", "-R", "root:wazuh", dst_scripts])
+
+            print("Destination directory after setting permissions:", dst_scripts)
+            subprocess.run(["ls", "-l", dst_scripts])  # Check permissions after
 
         create_linux_scheduled_task(install_dir)
 
