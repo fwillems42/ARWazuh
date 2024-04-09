@@ -5,6 +5,28 @@ import shutil
 import sys
 
 
+def read_requirements(requirement_file):
+    packages = ""
+    with open(requirement_file, "r") as f:
+        for line in f.readlines():
+            if line.startswith("#"):
+                continue
+
+            if "~=" in line:
+                line = line.strip()
+                line = line.split("~=")[0]
+
+                if line.startswith("python-"):
+                    line = line.split("python-")[1]
+
+                packages += f"{line} "
+
+    if len(packages) > 0:
+        packages = packages[0:-1]
+
+    return packages[0:-1]
+
+
 def git_clone(repository_url, folder_name):
     try:
         subprocess.run(["git", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
@@ -81,15 +103,13 @@ def deploy_on_linux(repository_url, folder_name):
 
         create_linux_scheduled_task(install_dir)
 
-        requirements = os.path.join(install_dir, folder_name, 'requirements.txt')
-        packages = " "
-        with open(requirements, 'r') as f:
-            for line in f.readlines():
-                line = line.strip()
-                packages += f"{line} "
+        requirements_file = os.path.join(install_dir, folder_name, 'requirements.txt')
+        packages = read_requirements(requirements_file)
 
-        print("The following packages will be installed:", packages)
-        # subprocess.run(["apt", "install", packages], check=True)
+        print("The following packages will be installed: ", packages)
+
+        input("Press Enter to continue...")
+        subprocess.run(["apt", "install", "-y", packages], check=True)
 
     except Exception as e:
         print("Error:", e)
