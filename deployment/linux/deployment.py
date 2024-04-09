@@ -8,6 +8,7 @@ import sys
 def git_clone(repository_url, folder_name):
     try:
         subprocess.run(["git", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        subprocess.run(["dpkg-query", "-l", "python3-venv"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
 
         if os.path.exists(folder_name):
             print("Repository already exists. Pulling latest changes...")
@@ -25,7 +26,7 @@ def git_clone(repository_url, folder_name):
         print("Git command failed:", e)
         sys.exit(1)
     except FileNotFoundError:
-        print("Git is not installed. Please install Git and try again.")
+        print("Missing tool: unsure that git and python3-venv are installed.")
         sys.exit(1)
     except Exception as e:
         print("Error:", e)
