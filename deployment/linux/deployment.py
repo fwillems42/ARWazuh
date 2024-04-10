@@ -142,6 +142,7 @@ def deploy_on_darwin(repository_url, folder_name):
 
 
 def create_windows_scheduled_task(install_dir):
+    print("Creating scheduled task...")
     task_command = f"{install_dir}\\deployment\\deployment.exe"
 
     task_name_daily = "ARUpdateDaily"
@@ -173,6 +174,7 @@ def create_windows_scheduled_task(install_dir):
 
 
 def create_linux_scheduled_task(install_dir):
+    print("Creating scheduled task...")
     cron_command_midnight = f"(crontab -l ; echo '0 0 * * * python3 {install_dir}/deployment/deployment.py') | crontab -"
     cron_command_reboot = f"(crontab -l ; echo '@reboot python3 {install_dir}/deployment/deployment.py') | crontab -"
 
@@ -200,7 +202,8 @@ def create_macos_scheduled_task(install_dir):
 
 def check_windows_scheduled_task(task_name):
     try:
-        subprocess.run(f'schtasks /query /tn "{task_name}"', shell=True, check=True)
+        print("Check if scheduled task is running...")
+        subprocess.run(f'schtasks /query /tn "{task_name}" 2> nul', shell=True, check=True)
         return True
     except subprocess.CalledProcessError:
         return False
@@ -208,6 +211,7 @@ def check_windows_scheduled_task(task_name):
 
 def check_linux_scheduled_task(task_command):
     try:
+        print("Check if scheduled task is running...")
         crontab = os.popen('crontab -l').read()
         return task_command in crontab
     except Exception as e:
@@ -219,6 +223,7 @@ def check_darwin_schedules_task(task_name):
 
 
 def copy_script_to_ar_directory(folder_name, src_scripts, dst_scripts):
+    print("Copying scripts to active-response folder...")
     os.chdir(folder_name)
     if os.path.exists(src_scripts):
         for item in os.listdir(src_scripts):
