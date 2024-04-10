@@ -151,8 +151,8 @@ def create_windows_scheduled_task(install_dir):
     task_name_startup = "ARUpdateOnStart"
     task_trigger_startup = "onstart"
 
-    command_daily = f"schtasks /create /tn {task_name_daily} /tr '{task_command}' /sc {task_trigger_daily} /st {task_start_time_daily}"
-    command_startup = f"schtasks /create /tn {task_name_startup} /tr '{task_command}' /sc {task_trigger_startup}"
+    command_daily = f'schtasks /create /tn {task_name_daily} /tr "{task_command}" /sc {task_trigger_daily} /st {task_start_time_daily}'
+    command_startup = f'schtasks /create /tn {task_name_startup} /tr "{task_command}" /sc {task_trigger_startup}'
 
     try:
         task_count = 0
@@ -200,7 +200,7 @@ def create_macos_scheduled_task(install_dir):
 
 def check_windows_scheduled_task(task_name):
     try:
-        subprocess.run(f"schtasks /query /tn '{task_name}'", shell=True, check=True)
+        subprocess.run(f'schtasks /query /tn "{task_name}"', shell=True, check=True)
         return True
     except subprocess.CalledProcessError:
         return False
