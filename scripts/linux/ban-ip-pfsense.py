@@ -192,6 +192,7 @@ def main(argv):
             api = PfSenseApi(management_ip)
             custom_rule = PfSenseRule.create_custom_rule(
                 {
+                    'type': 'block',
                     'interface': 'em2',
                     'src': src_ip,
                     'descr': f'AR: Blocking all incoming traffic from {src_ip} ({alert_id})'

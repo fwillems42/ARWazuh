@@ -173,6 +173,7 @@ def main(argv):
 
         """ Start Custom Action Add """
         try:
+            # Todo: Will not work on Windows
             os.system(f'iptables -A INPUT -s {src_ip} -j DROP;')
             os.system(f'iptables -A FORWARD -s {src_ip} -j DROP;')
             write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully banning threat using {argv[0]} AR")
@@ -185,6 +186,7 @@ def main(argv):
 
         """ Start Custom Action Delete """
         try:
+            # Todo: Will not work on Windows
             os.system(f'iptables -D INPUT -s {src_ip} -j DROP;')
             os.system(f'iptables -D FORWARD -s {src_ip} -j DROP;')
             write_debug_file(argv[0], json.dumps(msg.alert) + f" {rule_id} Successfully unbanning threat using {argv[0]} AR")
