@@ -2,11 +2,11 @@ import os
 
 import requests
 import urllib3
-# Temporarily disabling InsecureRequestWarning due to self-signed certificate
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from domain import utils
 
+# Temporarily disabling InsecureRequestWarning due to self-signed certificate
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -42,7 +42,7 @@ class PfSenseRule:
 
 class PfSenseApi:
     """
-        Basic implementation of some of the endpoints provided by the following pfsense-api:
+        Basic implementation of some endpoints provided by the following pfsense-api:
             https://github.com/jaredhendrickson13/pfsense-api
 
     """

@@ -25,3 +25,9 @@ class Validator(object):
     @staticmethod
     def validate_path(path_to_validate: str):
         return os.path.isabs(path_to_validate)
+
+    @staticmethod
+    def validate_mac(mac_to_validate: str):
+        import re
+        return re.match("([0-9a-f]{2}[:-]){5}([0-9a-f]{2})$", mac_to_validate.lower()) is not None
+

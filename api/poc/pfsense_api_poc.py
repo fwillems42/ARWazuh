@@ -10,7 +10,7 @@ def main():
     get_all_rules_response = api.get_firewall_rules()
     print(f"{get_all_rules_response['message']}")
     if debug:
-        utils.pprint_json(get_all_rules_response)
+        print(utils.pprint_json(get_all_rules_response))
 
     custom_rule = PfSenseRule.create_default_rule()
 
@@ -21,7 +21,7 @@ def main():
 
     if debug:
         print(f"Tracker: {custom_rule_tracker}")
-        utils.pprint_json(post_custom_rule_response)
+        print(utils.pprint_json(post_custom_rule_response))
 
     input("Press any button to continue..")
 
@@ -30,14 +30,14 @@ def main():
     print(delete_custom_rule_response['message'])
 
     if debug:
-        utils.pprint_json(delete_custom_rule_response)
+        print(utils.pprint_json(delete_custom_rule_response))
 
     print("Committing configuration..", end=" ")
     apply_configuration_response = api.apply(asynchronous=False)
     print(apply_configuration_response['message'])
 
     if debug:
-        utils.pprint_json(apply_configuration_response)
+        print(utils.pprint_json(apply_configuration_response))
 
 
 if __name__ == '__main__':
