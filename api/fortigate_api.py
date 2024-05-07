@@ -19,6 +19,14 @@ class FortiGateObject:
             "color": "0"
         }
 
+    @staticmethod
+    def create_ip_object(name, ip, mask=32):
+        return {
+            "name": name,
+            "subnet": f"{ip}/{mask}",
+            "color": "0"
+        }
+
 
 class CustomSessionApi(requests.Session):
 
@@ -42,8 +50,7 @@ class FortiGateApi:
         self.schema = f"https://{domain}"
 
         # Create .env file with the following keys/values
-        # XXX_API_USER="xxx"
-        # XXX_API_PASS="xxx"
+        # FORTIGATE_API_KEY="xxx"
 
         load_dotenv()
         __key = os.getenv('FORTIGATE_API_KEY')

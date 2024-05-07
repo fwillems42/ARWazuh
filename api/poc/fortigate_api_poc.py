@@ -16,12 +16,12 @@ def fprint(content, inline=False, use_stdout=True):
 
 
 def main():
-    api = FortiGateApi("192.168.3.158")
+    api = FortiGateApi("192.168.145.142")
     debug = True
 
     isolation_group_name = 'Isolation'
-    mac_object_name = 'Victim'
-    mac_object = FortiGateObject.create_mac_object(mac_object_name, '00:0C:29:AF:40:81')
+    mac_object_name = 'Client'
+    mac_object = FortiGateObject.create_mac_object(mac_object_name, '00:0C:29:75:57:24')
 
     fprint(f"[1] get_all_addr_object_response: ", inline=True)
     get_all_addr_object_response = api.get_all_addr_object()
@@ -35,7 +35,7 @@ def main():
     if debug:
         fprint(utils.pprint_json(add_mac_object_response))
 
-    sleep(2.0)
+    input("Press Enter to continue...")
 
     fprint(f"[3] get_all_addr_object_response: ", inline=True)
     get_all_addr_object_response = api.get_all_addr_object()
@@ -56,7 +56,7 @@ def main():
     if debug:
         fprint(utils.pprint_json(add_object_to_group_response))
 
-    sleep(2.0)
+    input("Press Enter to continue...")
 
     fprint(f"[6] get_members_of_group_response: ", inline=True)
     get_members_of_group_response = api.get_members_of_group(isolation_group_name)
@@ -70,7 +70,7 @@ def main():
     if debug:
         fprint(utils.pprint_json(remove_object_from_group_response))
 
-    sleep(2.0)
+    input("Press Enter to continue...")
 
     fprint(f"[8] get_members_of_group_response: ", inline=True)
     get_members_of_group_response = api.get_members_of_group(isolation_group_name)
@@ -84,7 +84,7 @@ def main():
     if debug:
         fprint(utils.pprint_json(remove_mac_object_response))
 
-    sleep(2.0)
+    input("Press Enter to exit...")
 
 
 if __name__ == '__main__':
